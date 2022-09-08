@@ -1,0 +1,39 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+parameters:
+    # The level 8 is the highest level
+    level: 5
+    paths:
+        - app
+        - bootstrap
+        - config
+        - routes
+        - tests
+
+    ignoreErrors:
+#        - '#Cannot access property [\$A-Za-z0-9\s]+ on [a-z\|A-Z0-9\\_]+<string, mixed>#'
+#        - '#Cannot access property [\$A-Za-z0-9\s]+ on [a-z\|A-Z0-9\\_]+<string, null>#'
+        - '#Access to an undefined property#'
+#        - '#Cannot call method [a-zA-Z0-9\\_\(\)]+ on [a-zA-Z0-9\\_]+<string, int\|string>#'
+#        - '#Cannot call method [a-zA-Z0-9\\_\(\)]+ on [a-zA-Z0-9\\_]+<string, mixed>#'
+#        - '#Method [a-zA-Z0-9\\_]+::toMail\(\) should return Illuminate\\Notifications\\Messages\\MailMessage but returns#'
+
+    excludePaths:
+        - database/*
+        - public/*
+        - resources/*
+        - bootstrap/cache/*
+        - bootstrap/autoload.php
+        - */factories/*
+        - */migrations/*
+        - */seeds/*
+        - *.blade.php
+        - *.js
+        - vendor/*
+        - routes/console.php
+
+    parallel:
+        processTimeout: 300.0
+
+    checkMissingIterableValueType: false
+    treatPhpDocTypesAsCertain: false
