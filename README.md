@@ -10,7 +10,7 @@ This repository holds Check DC Book Library Code Assessment
 
 To start the book library app, perform the following step in the order
 
-- Clone the repository by running the command 'git clone https://github.com/'
+- Clone the repository by running the command 'git clone https://github.com/Geoslim/check-dc-book-library.git'
 - Run composer install
 - Run 'cp .env.example .env'
 - Fill your configuration settings in the '.env' file you created above
