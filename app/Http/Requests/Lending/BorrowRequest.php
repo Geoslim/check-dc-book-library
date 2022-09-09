@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Admin\Plan;
+namespace App\Http\Requests\Lending;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreatePlanRequest extends FormRequest
+class BorrowRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,10 +24,7 @@ class CreatePlanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|unique:plans,name',
-            'duration' => 'required',
-            'price' => 'required',
-            'borrow_period' => 'required'
+            'book_id' => 'required|exists:books,id',
         ];
     }
 }

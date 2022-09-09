@@ -18,6 +18,11 @@ class BookService
         return $book->refresh();
     }
 
+    public function updateBookStatus(Book $book, string $status): void
+    {
+        $book->update(['status' => $status]);
+    }
+
     public function attachAuthorsToBook(Book $book, array $authorIds): void
     {
         $book->authors()->sync($authorIds);

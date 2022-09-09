@@ -11,12 +11,15 @@ use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class SubscriptionController extends Controller
 {
+    public function __construct(protected SubscriptionService $subscriptionService)
+    {
+    }
+
     /**
      * @param Request $request
      * @return AnonymousResourceCollection
@@ -28,28 +31,40 @@ class SubscriptionController extends Controller
         return SubscriptionResource::collection($subscriptions);
     }
 
+    public function activeSubscription(Request $request): JsonResponse
+    {
+        return $this->successResponse(
+            SubscriptionResource::make($request->user()->activeSubscription())
+        );
+    }
+
     /**
      * @param SubscriptionRequest $request
-     * @param SubscriptionService $subscriptionService
      * @return JsonResponse
-     * @throws Throwable
      */
-    public function store(SubscriptionRequest $request, SubscriptionService $subscriptionService): JsonResponse
+    public function subscribe(SubscriptionRequest $request): JsonResponse
     {
         try {
-            if ($request->user()->activeSubscription()) {
-                $this->error(
-                    'You already have an active subscription.',
-                    Response::HTTP_EXPECTATION_FAILED
-                );
-            }
+            $user = $request->user();
+            $user->abortIfUserAlreadyHasASubscription();
             $plan = Plan::whereId($request->validated()['plan_id'])->first();
-            DB::beginTransaction();
-                $subscription = $subscriptionService->subscribeToPlan($request->user()->id, $plan);
-            DB::commit();
-            return $this->successResponse(SubscriptionResource::make($subscription->load('plan')));
+            $subscription = $this->subscriptionService->subscribeToAPlan($user->id, $plan);
+            return $this->successResponse(
+                SubscriptionResource::make($subscription->load('plan'))
+            );
         } catch (\Exception $e) {
-            DB::rollback();
+            return $this->fatalErrorResponse($e);
+        }
+    }
+
+    public function unsubscribe(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            $user->abortIfUserHasNoSubscription();
+            $this->subscriptionService->unsubscribe($user);
+            return $this->success('Subscription successfully cancelled');
+        } catch (\Exception $e) {
             return $this->fatalErrorResponse($e);
         }
     }

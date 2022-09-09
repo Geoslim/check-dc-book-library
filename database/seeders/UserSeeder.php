@@ -4,9 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Services\AuthService;
-use App\Services\RoleService;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\Auth\AuthService;
+use App\Services\Auth\RoleService;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -14,7 +13,7 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * @param AuthService $authService
+     * @param \App\Services\Auth\AuthService $authService
      * @param RoleService $roleService
      * @return void
      */

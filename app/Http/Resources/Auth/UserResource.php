@@ -22,6 +22,7 @@ class UserResource extends JsonResource
             'profile' => new ProfileResource($this->whenLoaded('profile')),
             'status' => $this->{'status'},
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
+//            'access_levels' => $this->accessLevel(),
             'created_at' => $this->{'created_at'},
         ];
     }

@@ -1,11 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\BorrowController;
-use App\Http\Controllers\API\Admin\{
-    BookController,
-    PlanController,
-    UserController
-};
+use App\Http\Controllers\API\Admin\{BookController, LendingController, PlanController, UserController};
 use App\Http\Controllers\API\Auth\{AuthController, ProfileController};
 use App\Http\Controllers\API\SubscriptionController;
 use Illuminate\Http\Request;
@@ -38,17 +34,28 @@ Route::prefix('auth')->group(function () {
         ->middleware('auth:sanctum');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('subscriptions', SubscriptionController::class); // change this
+Route::middleware(['auth:sanctum', 'verify.profile'])->group(function () {
+    Route::controller(SubscriptionController::class)
+        ->prefix('subscriptions')->group(function () {
+            Route::get('', 'index');
+            Route::post('', 'subscribe');
+            Route::get('active', 'activeSubscription');
+            Route::post('unsubscribe', 'unsubscribe');
+        });
 
     Route::controller(BorrowController::class)->group(function () {
         Route::get('borrowed-books', 'borrowedBooks');
+        Route::get('active-borrowed-books', 'activeBorrowedBooks');
         Route::get('returned-books', 'returnedBooks');
         Route::post('borrow-book', 'borrowBook');
     });
 });
 
-Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::prefix('admin')->middleware([
+    'auth:sanctum',
+    'role:admin',
+    'verify.profile'
+])->group(function () {
     Route::controller(PlanController::class)->prefix('plans')->group(function () {
         Route::get('', 'getPlans');
         Route::post('', 'createPlan');
@@ -80,4 +87,32 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
             Route::delete('delete', 'deleteBook');
         });
     });
+
+    Route::controller(LendingController::class)->prefix('lendings')->group(function () {
+        Route::get('', 'getLendings');
+        Route::post('', 'createLending');
+        Route::prefix('{lending}')->group(function () {
+            Route::get('', 'getLending');
+            Route::post('status', 'markLendingAsReturned');
+            Route::post('update', 'updateLending');
+            Route::delete('delete', 'deleteLending');
+        });
+    });
 });
+
+
+/**
+ * Note to self
+ * --------------------------------
+ * Profile needs to be updated with at least the age in order to borrow a book
+ * Age is used in getting a user's access level
+ *
+ * A user must be subscribed before they can also borrow a book
+ * Probably add a middleware to make sure you cannot attempt borrowing if you're not subscribed
+ *
+ * Best way to manage lendings will be to have a book count i.e each book has copies
+ * and the count reduces or increases when borrowed or returned
+ *
+ * Ensure you go over the migration files again... probably for soft delete or
+ * cascading or even indexing
+ */

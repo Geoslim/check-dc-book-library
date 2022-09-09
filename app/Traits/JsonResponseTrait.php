@@ -46,17 +46,7 @@ trait JsonResponseTrait
 
     public function fatalErrorResponse(Exception $e, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
     {
-        $line = $e->getTrace();
-
-        $error = [
-            "message" => $e->getMessage(),
-            "trace" => $line[0],
-            "mini_trace" => $line[1]
-        ];
-
-        if (strtoupper(config("APP_ENV")) === "PRODUCTION") {
-            $error = null;
-        }
+        $error = ["message" => $e->getMessage()];
 
         return response()->json([
             "success" => false,

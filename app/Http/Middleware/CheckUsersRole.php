@@ -9,7 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckUserRole
+class CheckUsersRole
 {
     use JsonResponseTrait;
 
@@ -25,14 +25,13 @@ class CheckUserRole
     {
         $roles = is_array($role) ? $role : explode('|', $role);
 
-
-        if ($request->user()->roles()->whereIn('slug', $roles)->exists()) {
-            return $next($request);
+        if (!$request->user()->roles()->whereIn('slug', $roles)->exists()) {
+            return $this->error(
+                "UNAUTHORIZED, You do not have the role required.",
+                Response::HTTP_FORBIDDEN
+            );
         }
 
-        return $this->error(
-            "UNAUTHORIZED, You do not have the role required.",
-            Response::HTTP_FORBIDDEN
-        );
+        return $next($request);
     }
 }
