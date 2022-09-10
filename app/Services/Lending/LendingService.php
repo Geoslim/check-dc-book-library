@@ -31,7 +31,7 @@ class LendingService
             $user->activeSubscription()->plan->borrow_period
         );
         $this->bookService->updateBookStatus($book, Book::STATUS['borrowed']);
-        return $lending;
+        return $lending->refresh();
     }
 
     public function createLendingRecord($userId, $bookId, $borrowPeriod): Model|Lending
@@ -47,6 +47,31 @@ class LendingService
     /**
      * @throws Exception
      */
+    public function markLendingAsReturned($lending)
+    {
+        $this->abortIfLendingHasAlreadyBeenReturned($lending);
+        $lendingPoints = $this->getLendingPoints($lending);
+        $lending->update([
+            'status' => Lending::STATUS['returned'],
+            'date_time_returned' => now(),
+            'points' => Carbon::parse($lending->date_time_due)->gt(now())
+                ? $lending->points + $lendingPoints
+                : $lending->points - $lendingPoints
+        ]);
+        $this->bookService->updateBookStatus($lending->book, Book::STATUS['available']);
+        return $lending;
+    }
+
+    protected function getLendingPoints($lending): int
+    {
+        return (int)Carbon::parse($lending->date_time_due)->gt(now())
+            ? Configuration::value(Configuration::ADDABLE_POINT)
+            : Configuration::value(Configuration::DEDUCTIBLE_POINT);
+    }
+
+    /**
+     * @throws Exception
+     */
     private function abortIfBookIsUnavailable($book): void
     {
         if ($book->status != Book::STATUS['available']) {
@@ -56,22 +81,15 @@ class LendingService
         }
     }
 
-    public function markLendingAsReturned($lending)
+    /**
+     * @throws Exception
+     */
+    private function abortIfLendingHasAlreadyBeenReturned($lending): void
     {
-        $lendingPoint = $this->getLendingPoint($lending);
-        $lending->update([
-            'status' => Lending::STATUS['returned'],
-            'date_time_returned' => now(),
-            'points' => $lending->points + $lendingPoint
-        ]);
-        $this->bookService->updateBookStatus($lending->book, Book::STATUS['available']);
-        return $lending;
-    }
-
-    protected function getLendingPoint($lending): int
-    {
-        return (int)Carbon::parse($lending->date_time_due)->gt(now())
-            ? Configuration::value(Configuration::ADDABLE_POINT)
-            : Configuration::value(Configuration::DEDUCTIBLE_POINT);
+        if ($lending->status == Lending::STATUS['returned']) {
+            throw new Exception(
+                'This lending record has already been marked as returned.'
+            );
+        }
     }
 }

@@ -68,6 +68,7 @@ class LendingController extends Controller
 
     public function updateLending(Request $request, Lending $lending): JsonResponse
     {
+        return $this->success('Lending Record updated successfully');
     }
 
     public function deleteLending(Request $request, Lending $lending): JsonResponse

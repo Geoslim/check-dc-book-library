@@ -46,6 +46,7 @@ trait JsonResponseTrait
 
     public function fatalErrorResponse(Exception $e, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
     {
+        \Log::error($e);
         $error = ["message" => $e->getMessage()];
 
         return response()->json([

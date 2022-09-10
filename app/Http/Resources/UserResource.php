@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Resources\Auth;
+namespace App\Http\Resources;
 
-use App\Http\Resources\RoleResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +21,8 @@ class UserResource extends JsonResource
             'profile' => new ProfileResource($this->whenLoaded('profile')),
             'status' => $this->{'status'},
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
-//            'access_levels' => $this->accessLevel(),
+            'access_level' => $this->accessLevel(),
+            'lending_points' => $this->lendingPoints(),
             'created_at' => $this->{'created_at'},
         ];
     }

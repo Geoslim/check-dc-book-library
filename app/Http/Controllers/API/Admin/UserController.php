@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\{User\CreateUserRequest,
-    User\UpdateUserRequest,
-    User\UpdateUserStatusRequest
-};
-use App\Http\Resources\Auth\UserResource;
+use App\Http\Requests\Admin\{User\CreateUserRequest, User\UpdateUserRequest, User\UpdateUserStatusRequest};
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Auth\AuthService;
 use App\Services\Auth\RoleService;
@@ -24,13 +21,13 @@ class UserController extends Controller
     public function getUsers(): JsonResponse
     {
         return $this->successResponse(
-            UserResource::collection(User::paginate())
+            UserResource::collection(User::with(['profile','roles'])->paginate())
         );
     }
 
     public function getUser(User $user): JsonResponse
     {
-        return $this->successResponse(UserResource::make($user));
+        return $this->handleResponse($user);
     }
 
     /**
@@ -47,7 +44,7 @@ class UserController extends Controller
                 $this->userService->createProfile($user);
                 RoleService::attachRolesToUser($user, $data['role_id']);
             DB::commit();
-            return $this->successResponse(UserResource::make($user));
+            return $this->handleResponse($user);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->fatalErrorResponse($e);
@@ -60,7 +57,7 @@ class UserController extends Controller
             $user->update([
                 'status' => $request->validated()['status']
             ]);
-            return $this->successResponse(UserResource::make($user));
+            return $this->handleResponse($user);
         } catch (\Exception $e) {
             return $this->fatalErrorResponse($e);
         }
@@ -79,7 +76,7 @@ class UserController extends Controller
                 $user = $this->userService->updateProfile($user, $request->except('role_id'));
                 RoleService::attachRolesToUser($user, $request->input('role_id'));
             DB::commit();
-            return $this->successResponse(UserResource::make($user));
+            return $this->handleResponse($user);
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->fatalErrorResponse($e);
@@ -98,5 +95,14 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return $this->fatalErrorResponse($e);
         }
+    }
+
+    protected function handleResponse($user): JsonResponse
+    {
+        return $this->successResponse(
+            UserResource::make(
+                $user->load('profile', 'roles')
+            )
+        );
     }
 }

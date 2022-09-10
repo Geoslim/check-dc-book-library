@@ -2,26 +2,12 @@
 
 namespace App\Traits;
 
-use App\Models\AccessLevel;
+use App\Models\{AccessLevel, Lending};
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Database\Eloquent\{Builder, Model};
 
 trait UserTrait
 {
-    /**
-     * @throws Exception
-     */
-    public function abortIfUserHasNoSubscription(): void
-    {
-        if (!$this->activeSubscription()) {
-            throw new Exception(
-                'User has no active subscription.',
-            );
-        }
-    }
-
     /**
      * @throws Exception
      */
@@ -30,6 +16,18 @@ trait UserTrait
         if ($this->activeSubscription()) {
             throw new Exception(
                 'User already has an active subscription.',
+            );
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function abortIfUserHasNoSubscription(): void
+    {
+        if (!$this->activeSubscription()) {
+            throw new Exception(
+                'User has no active subscription.',
             );
         }
     }
@@ -63,6 +61,9 @@ trait UserTrait
 
     public function accessLevel(): Model|AccessLevel|Builder|null
     {
+        if (is_null($this->profile->age)) {
+            return null;
+        }
         return AccessLevel::where(function ($access) {
             $access->where('min_age', '<=', $this->profile->age)
                 ->where('max_age', '>=', $this->profile->age)
@@ -82,5 +83,10 @@ trait UserTrait
             ->where('status', 'active')
             ->first();
         return is_null($subscription) ? null : $subscription->load('plan');
+    }
+
+    public function lendingPoints()
+    {
+        return Lending::whereUserId($this->id)->sum('points');
     }
 }

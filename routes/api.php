@@ -109,10 +109,10 @@ Route::prefix('admin')->middleware([
  *
  * A user must be subscribed before they can also borrow a book
  * Probably add a middleware to make sure you cannot attempt borrowing if you're not subscribed
- *
- * Best way to manage lendings will be to have a book count i.e each book has copies
- * and the count reduces or increases when borrowed or returned
- *
+
  * Ensure you go over the migration files again... probably for soft delete or
  * cascading or even indexing
+ *
+ * Should probably provide an endpoint that fetches all authors for admins
+ * One that fetches all books as well for users
  */

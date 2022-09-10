@@ -9,7 +9,7 @@ use App\Http\Requests\Admin\{Book\CreateBookRequest,
 };
 use App\Http\Resources\BookResource;
 use App\Models\Book;
-use App\Services\Admin\{BookService, CategoryService, TagService};
+use App\Services\Admin\BookService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -42,17 +42,19 @@ class BookController extends Controller
     /**
      * @param CreateBookRequest $request
      * @return JsonResponse
+     * @throws Throwable
      */
     public function createBook(CreateBookRequest $request): JsonResponse
     {
         try {
             $data = $request->validated();
-            $book = $this->bookService->createBook($data);
-            $this->bookService->attachAuthorsToBook($book, $data['author_id']);
-            CategoryService::attachCategoriesToBook($book, $data['category_id']);
-            TagService::attachTagsToBook($book, $data['tag_id']);
+            DB::beginTransaction();
+                $book = $this->bookService->createBook($data);
+                $this->attachBookDependencies($book, $data);
+            DB::commit();
             return $this->handleResponse($book);
         } catch (\Exception $e) {
+            DB::rollBack();
             return $this->fatalErrorResponse($e);
         }
     }
@@ -86,9 +88,12 @@ class BookController extends Controller
             $data = $request->validated();
             DB::beginTransaction();
                 $book = $this->bookService->updateBook($book, $data);
-                $this->bookService->attachAuthorsToBook($book, $data['author_id']);
-                CategoryService::attachCategoriesToBook($book, $data['category_id']);
-                TagService::attachTagsToBook($book, $data['tag_id']);
+//                $this->attachBookDependencies($book, $data);
+            $this->bookService->attachAuthorsToBook($book, $data['author_id']);
+            $this->bookService->attachPlansToBook($book, $data['plan_id']);
+            $this->bookService->attachAccessLevelsToBook($book, $data['access_level_id']);
+            $this->bookService->attachCategoriesToBook($book, $data['category_id']);
+            $this->bookService->attachTagsToBook($book, $data['tag_id']);
             DB::commit();
             return $this->handleResponse($book);
         } catch (\Exception $e) {
@@ -118,11 +123,21 @@ class BookController extends Controller
                 $book->load(
                     'accessLevels',
                     'authors.profile',
+                    'authors.roles',
                     'categories',
                     'plans',
                     'tags'
                 )
             )
         );
+    }
+
+    private function attachBookDependencies($book, $data)
+    {
+        $this->bookService->attachAuthorsToBook($book, $data['author_id']);
+        $this->bookService->attachPlansToBook($book, $data['plan_id']);
+        $this->bookService->attachAccessLevelsToBook($book, $data['access_level_id']);
+        $this->bookService->attachCategoriesToBook($book, $data['category_id']);
+        $this->bookService->attachTagsToBook($book, $data['tag_id']);
     }
 }

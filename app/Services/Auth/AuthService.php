@@ -12,10 +12,12 @@ class AuthService
      */
     public function createUser(array $data): User
     {
-        return User::create([
+        $user =  User::create([
             'email' => $data['email'],
             'password' => bcrypt($data['password'])
         ]);
+
+        return $user->refresh();
     }
 
     public function createToken($user): string

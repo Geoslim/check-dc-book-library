@@ -40,8 +40,7 @@ class CreateBookRequest extends FormRequest
                             Role::whereSlug('author')
                                 ->select('id')
                             ->first()['id']
-                        )
-                            ->exists();
+                        )->exists();
                     })
             ],
             'category_id' => 'required|array|exists:categories,id',
@@ -54,7 +53,7 @@ class CreateBookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'author_id.exists' => 'The user needs to be an author.',
+            'author_id.exists' => 'Selected user needs to be an author.',
         ];
     }
 }

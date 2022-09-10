@@ -7,16 +7,14 @@ use App\Traits\UserTrait;
 use Illuminate\Database\Eloquent\{Builder,
     Collection,
     Factories\HasFactory,
-    Model,
     Relations\BelongsToMany,
     Relations\HasMany,
-    Relations\HasOne};
+    Relations\HasOne
+};
 use Database\Factories\UserFactory;
 use Eloquent;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Notifications\DatabaseNotificationCollection;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\{DatabaseNotification, DatabaseNotificationCollection, Notifiable};
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\{HasApiTokens, PersonalAccessToken};
 
@@ -91,17 +89,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    protected $with = ['profile', 'roles'];
-
     public const STATUS = [
         'active' => 'active',
         'inactive' => 'inactive',
     ];
-
-    public function lendingPoints()
-    {
-        return Lending::whereUserId($this->id)->sum('points');
-    }
 
     public function profile(): HasOne
     {

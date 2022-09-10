@@ -60,9 +60,7 @@ class SubscriptionController extends Controller
     public function unsubscribe(Request $request): JsonResponse
     {
         try {
-            $user = $request->user();
-            $user->abortIfUserHasNoSubscription();
-            $this->subscriptionService->unsubscribe($user);
+            $this->subscriptionService->unsubscribe($request->user());
             return $this->success('Subscription successfully cancelled');
         } catch (\Exception $e) {
             return $this->fatalErrorResponse($e);
