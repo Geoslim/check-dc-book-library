@@ -53,12 +53,13 @@ class LendingController extends Controller
 
     public function markLendingAsReturned(Request $request, Lending $lending): JsonResponse
     {
+        // need to make sure we cannot mark a lending more than once
         try {
             DB::beginTransaction();
             $lending = $this->lendingService
                 ->markLendingAsReturned($lending->load('book', 'user'));
             DB::commit();
-            return $this->successResponse($lending);
+            return $this->successResponse(LendingResource::make($lending));
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->fatalErrorResponse($e);

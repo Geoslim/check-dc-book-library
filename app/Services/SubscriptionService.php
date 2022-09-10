@@ -34,6 +34,6 @@ class SubscriptionService
     {
         $user->abortIfUserHasNoSubscription();
         $user->activeSubscription()
-            ->update(['status'=> Subscription::STATUS['cancelled']]);
+            ->update(['status' => Subscription::STATUS['cancelled']]);
     }
 }

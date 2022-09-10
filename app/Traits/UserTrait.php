@@ -53,7 +53,7 @@ trait UserTrait
     {
         if (
             !$book->accessLevels->pluck('id')->contains($this->accessLevel()->id)
-            || !$book->plans->pluck('id')->contains($this->activeSubscription()?->plan_id)
+            || !$book->plans->pluck('id')->contains($this->activeSubscription()['plan_id'])
         ) {
             throw new Exception(
                 'You do not have the required access level or plan to borrow this book.'
@@ -78,8 +78,9 @@ trait UserTrait
      */
     public function activeSubscription(): Model|null|string
     {
-        return $this->subscriptions()
+        $subscription = $this->subscriptions()
             ->where('status', 'active')
-            ->first()->load('plan');
+            ->first();
+        return is_null($subscription) ? null : $subscription->load('plan');
     }
 }
