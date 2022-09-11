@@ -9,7 +9,7 @@ class PlanService
 {
     public function createPlan(array $data): Model|Plan
     {
-        return Plan::create($data);
+        return Plan::create($data)->refresh();
     }
 
     public function updatePlan(Plan $plan, array $data): ?Plan

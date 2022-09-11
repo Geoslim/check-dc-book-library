@@ -36,6 +36,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Plan whereUpdatedAt($value)
  * @property-read Collection|Book[] $books
  * @property-read int|null $books_count
+ * @property int|null $borrow_period
+ * @method static Builder|Plan whereBorrowPeriod($value)
  */
 class Plan extends Model
 {
@@ -45,11 +47,13 @@ class Plan extends Model
         'name',
         'price',
         'duration',
+        'borrow_period',
         'status'
     ];
 
     protected $casts = [
         'duration' => 'int',
+        'borrow_period' => 'int',
     ];
 
     public const FREEMIUM = 0;

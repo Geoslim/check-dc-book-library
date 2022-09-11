@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Book;
+use App\Models\Lending;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,16 +16,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('lendings', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class);
-            $table->string('first_name')->nullable();
-            $table->string('last_name')->nullable();
-            $table->string('username')->nullable()->unique();
-            $table->integer('age')->nullable()->index();
-            $table->mediumText('address')->nullable();
-            $table->rememberToken();
+            $table->foreignIdFor(Book::class);
+            $table->dateTime('date_time_borrowed');
+            $table->dateTime('date_time_due');
+            $table->dateTime('date_time_returned')->nullable();
+            $table->integer('points')->default(0);
+            $table->string('status')->default(Lending::STATUS['not_due']);
             $table->timestamps();
+
+            $table->index(['date_time_due', 'status']);
         });
     }
 
@@ -34,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('lendings');
     }
 };

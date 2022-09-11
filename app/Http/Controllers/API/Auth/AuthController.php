@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\{RegisterRequest, LoginRequest};
-use App\Http\Resources\Auth\UserResource;
+use App\Http\Requests\Auth\{LoginRequest, RegisterRequest};
+use App\Http\Resources\UserResource;
 use App\Models\Role;
-use App\Services\AuthService;
-use App\Services\RoleService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Services\Auth\{AuthService, RoleService};
+use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Support\Facades\{Auth, DB};
 use Throwable;
 
 class AuthController extends Controller
@@ -32,7 +29,7 @@ class AuthController extends Controller
             DB::beginTransaction();
                 $user = $this->authService->createUser($request->validated());
                 $this->authService->createProfile($user);
-                RoleService::attachRolesToUser($user, $roleId);
+                $this->authService->attachRolesToUser($user, $roleId);
                 $response['token'] = $this->authService->createToken($user);
             DB::commit();
             $response['user'] = UserResource::make($user->load('profile', 'roles'));

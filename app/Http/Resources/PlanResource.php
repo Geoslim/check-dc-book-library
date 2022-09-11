@@ -20,6 +20,7 @@ class PlanResource extends JsonResource
             'name' => $this->{'name'},
             'price' => $this->{'price'},
             'duration' => $this->{'duration'},
+            'borrow_period' => $this->{'borrow_period'},
             'status' => $this->{'status'}
         ];
     }

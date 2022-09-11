@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin\AccessLevel;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class SubscriptionRequest extends FormRequest
+class CreateAccessLevelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +24,10 @@ class SubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_id' => [
-                'required',
-                'numeric',
-                Rule::exists('plans', 'id')
-            ],
+            'name' => 'required|string|unique:access_levels,name',
+            'min_age' => 'required|numeric',
+            'max_age' => 'required|numeric',
+            'lending_point' => 'required|numeric'
         ];
     }
 }

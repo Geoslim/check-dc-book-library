@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Database\Factories\BookFactory;
 use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\{Builder,
+    Collection,
+    Factories\HasFactory,
+    Model,
+    Relations\BelongsTo,
+    Relations\BelongsToMany};
 use Illuminate\Support\Carbon;
 
 /**
@@ -45,6 +46,7 @@ use Illuminate\Support\Carbon;
  * @property-read int|null $access_levels_count
  * @property-read Collection|Plan[] $plans
  * @property-read int|null $plans_count
+ * @property-read Lending|null $lendings
  */
 class Book extends Model
 {
@@ -91,6 +93,11 @@ class Book extends Model
             'book_id',
             'category_id'
         );
+    }
+
+    public function lendings(): BelongsTo
+    {
+        return $this->belongsTo(Lending::class);
     }
 
     public function plans(): BelongsToMany

@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\BorrowController;
-use App\Http\Controllers\API\Admin\{
+use App\Http\Controllers\API\Admin\{AccessLevelController,
     BookController,
+    LendingController,
     PlanController,
-    UserController
-};
+    UserController};
 use App\Http\Controllers\API\Auth\{AuthController, ProfileController};
 use App\Http\Controllers\API\SubscriptionController;
 use Illuminate\Http\Request;
@@ -38,17 +38,28 @@ Route::prefix('auth')->group(function () {
         ->middleware('auth:sanctum');
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('subscriptions', SubscriptionController::class); // change this
+Route::middleware(['auth:sanctum', 'verify.profile'])->group(function () {
+    Route::controller(SubscriptionController::class)
+        ->prefix('subscriptions')->group(function () {
+            Route::get('', 'index');
+            Route::post('', 'subscribe');
+            Route::get('active', 'activeSubscription');
+            Route::post('unsubscribe', 'unsubscribe');
+        });
 
     Route::controller(BorrowController::class)->group(function () {
         Route::get('borrowed-books', 'borrowedBooks');
+        Route::get('active-borrowed-books', 'activeBorrowedBooks');
         Route::get('returned-books', 'returnedBooks');
         Route::post('borrow-book', 'borrowBook');
     });
 });
 
-Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::prefix('admin')->middleware([
+    'auth:sanctum',
+    'role:admin',
+    'verify.profile'
+])->group(function () {
     Route::controller(PlanController::class)->prefix('plans')->group(function () {
         Route::get('', 'getPlans');
         Route::post('', 'createPlan');
@@ -68,6 +79,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
             Route::post('update', 'updateUser');
             Route::delete('delete', 'deleteUser');
         });
+        Route::get('role/{role}', 'getUsersByRole'); // ['role' => ['admins', 'authors', 'readers']]
     });
 
     Route::controller(BookController::class)->prefix('books')->group(function () {
@@ -80,4 +92,32 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
             Route::delete('delete', 'deleteBook');
         });
     });
+
+    Route::controller(LendingController::class)->prefix('lendings')->group(function () {
+        Route::get('', 'getLendings');
+        Route::post('', 'createLending');
+        Route::prefix('{lending}')->group(function () {
+            Route::get('', 'getLending');
+            Route::post('status', 'markLendingAsReturned');
+            Route::post('update', 'updateLending');
+            Route::delete('delete', 'deleteLending');
+        });
+    });
+
+    Route::controller(AccessLevelController::class)->prefix('access-levels')->group(function () {
+        Route::get('', 'getAccessLevels');
+        Route::post('', 'createAccessLevel');
+        Route::prefix('{accessLevel}')->group(function () {
+            Route::get('', 'getAccessLevel');
+            Route::post('update', 'updateAccessLevel');
+            Route::delete('delete', 'deleteAccessLevel');
+        });
+    });
 });
+
+
+/**
+ * Note to self
+ * --------------------------------
+ * One that fetches all books as well for users
+ */

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin\AccessLevel;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class SubscriptionRequest extends FormRequest
+class UpdateAccessLevelRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,14 +23,14 @@ class SubscriptionRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules(): array
+    public function rules(Request $request): array
     {
-        return [
-            'plan_id' => [
+        return array_merge((new CreateAccessLevelRequest())->rules(), [
+            'name' => [
                 'required',
-                'numeric',
-                Rule::exists('plans', 'id')
-            ],
-        ];
+                Rule::unique('access_levels')
+                    ->ignore($request->route('accessLevel'))
+            ]
+        ]);
     }
 }

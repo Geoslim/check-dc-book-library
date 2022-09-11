@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Lending;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class SubscriptionRequest extends FormRequest
+class CreateLendingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +24,8 @@ class SubscriptionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_id' => [
-                'required',
-                'numeric',
-                Rule::exists('plans', 'id')
-            ],
+            'book_id' => 'required|numeric|exists:books,id',
+            'user_id' => 'required|numeric|exists:users,id',
         ];
     }
 }

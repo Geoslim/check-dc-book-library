@@ -4,9 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Services\AuthService;
-use App\Services\RoleService;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Services\Auth\AuthService;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -14,16 +12,15 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * @param AuthService $authService
-     * @param RoleService $roleService
+     * @param \App\Services\Auth\AuthService $authService
      * @return void
      */
-    public function run(AuthService $authService, RoleService $roleService): void
+    public function run(AuthService $authService): void
     {
         //create users with different roles
-        User::factory()->count(14)->create()->each(function (User $user) use ($authService, $roleService) {
+        User::factory()->count(14)->create()->each(function (User $user) use ($authService) {
             $authService->createProfile($user);
-            $roleService->attachRolesToUser(
+            $authService->attachRolesToUser(
                 $user,
                 Role::inRandomOrder()
                     ->take(2)
@@ -40,6 +37,6 @@ class UserSeeder extends Seeder
         ];
         $admin = $authService->createUser($data);
         $authService->createProfile($admin);
-        $roleService->attachRolesToUser($admin, $roleIds);
+        $authService->attachRolesToUser($admin, $roleIds);
     }
 }

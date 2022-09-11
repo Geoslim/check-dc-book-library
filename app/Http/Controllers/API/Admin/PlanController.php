@@ -21,11 +21,19 @@ class PlanController extends Controller
         return $this->successResponse(PlanResource::collection(Plan::paginate()));
     }
 
+    /**
+     * @param Plan $plan
+     * @return JsonResponse
+     */
     public function getPlan(Plan $plan): JsonResponse
     {
         return $this->successResponse(PlanResource::make($plan));
     }
 
+    /**
+     * @param CreatePlanRequest $request
+     * @return JsonResponse
+     */
     public function createPlan(CreatePlanRequest $request): JsonResponse
     {
         try {
@@ -36,6 +44,11 @@ class PlanController extends Controller
         }
     }
 
+    /**
+     * @param UpdatePlanRequest $request
+     * @param Plan $plan
+     * @return JsonResponse
+     */
     public function updatePlan(UpdatePlanRequest $request, Plan $plan): JsonResponse
     {
         try {
@@ -46,6 +59,10 @@ class PlanController extends Controller
         }
     }
 
+    /**
+     * @param Plan $plan
+     * @return JsonResponse
+     */
     public function deletePlan(Plan $plan): JsonResponse
     {
         try {

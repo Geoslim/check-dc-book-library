@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Auth;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Throwable;
 
 class AuthService
 {
@@ -14,10 +12,12 @@ class AuthService
      */
     public function createUser(array $data): User
     {
-        return User::create([
+        $user =  User::create([
             'email' => $data['email'],
             'password' => bcrypt($data['password'])
         ]);
+
+        return $user->refresh();
     }
 
     public function createToken($user): string
@@ -35,5 +35,15 @@ class AuthService
         $user->profile()->update($data);
 
         return $user->refresh();
+    }
+
+    /**
+     * @param User $user
+     * @param array $roleIds
+     * @return void
+     */
+    public static function attachRolesToUser(User $user, array $roleIds): void
+    {
+        $user->roles()->sync($roleIds);
     }
 }

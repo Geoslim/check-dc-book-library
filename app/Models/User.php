@@ -3,20 +3,20 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Traits\UserTrait;
+use Illuminate\Database\Eloquent\{Builder,
+    Collection,
+    Factories\HasFactory,
+    Relations\BelongsToMany,
+    Relations\HasMany,
+    Relations\HasOne
+};
+use Database\Factories\UserFactory;
+use Eloquent;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\DatabaseNotification;
-use Illuminate\Notifications\DatabaseNotificationCollection;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\{DatabaseNotification, DatabaseNotificationCollection, Notifiable};
 use Illuminate\Support\Carbon;
-use Laravel\Sanctum\HasApiTokens;
-use Laravel\Sanctum\PersonalAccessToken;
+use Laravel\Sanctum\{HasApiTokens, PersonalAccessToken};
 
 /**
  * App\Models\User
@@ -35,7 +35,7 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @property-read int|null $roles_count
  * @property-read Collection|PersonalAccessToken[] $tokens
  * @property-read int|null $tokens_count
- * @method static \Database\Factories\UserFactory factory(...$parameters)
+ * @method static UserFactory factory(...$parameters)
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
@@ -46,8 +46,8 @@ use Laravel\Sanctum\PersonalAccessToken;
  * @method static Builder|User wherePassword($value)
  * @method static Builder|User whereRememberToken($value)
  * @method static Builder|User whereUpdatedAt($value)
- * @mixin \Eloquent
- * @property-read Collection|\App\Models\Subscription[] $subscriptions
+ * @mixin Eloquent
+ * @property-read Collection|Subscription[] $subscriptions
  * @property-read int|null $subscriptions_count
  * @property string $status
  * @method static Builder|User whereStatus($value)
@@ -57,6 +57,7 @@ class User extends Authenticatable
     use HasApiTokens;
     use HasFactory;
     use Notifiable;
+    use UserTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -93,11 +94,6 @@ class User extends Authenticatable
         'inactive' => 'inactive',
     ];
 
-    public function activeSubscription()
-    {
-        return $this->subscriptions()->whereStatus('active')->first();
-    }
-
     public function profile(): HasOne
     {
         return $this->hasOne(Profile::class);
@@ -116,20 +112,5 @@ class User extends Authenticatable
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
-    }
-
-    public function accessLevel(): Model|AccessLevel|Builder|null
-    {
-        $accessLevel = AccessLevel::where(function($access) {
-            $access->where('min_age', '<=' , $this->profile->age)
-                ->where('max_age', '>=' ,$this->profile->age)
-                ->orWhere(function ($query) {
-                    return $query->where('min_age', '<=' , $this->profile->age)
-                        ->where('max_age', '=' , null);
-                });
-        })
-//            ->where('lending_point', '>=' , '')
-            ->first();
-        return $accessLevel;
     }
 }
