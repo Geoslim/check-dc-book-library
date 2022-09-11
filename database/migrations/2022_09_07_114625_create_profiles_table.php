@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('username')->nullable()->unique();
-            $table->integer('age')->nullable();
+            $table->integer('age')->nullable()->index();
             $table->mediumText('address')->nullable();
             $table->rememberToken();
             $table->timestamps();

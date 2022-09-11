@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Str;
 use App\Http\Requests\Admin\{User\CreateUserRequest, User\UpdateUserRequest, User\UpdateUserStatusRequest};
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -21,7 +22,22 @@ class UserController extends Controller
     public function getUsers(): JsonResponse
     {
         return $this->successResponse(
-            UserResource::collection(User::with(['profile','roles'])->paginate())
+            UserResource::collection(User::with('profile', 'roles')->paginate())
+        );
+    }
+
+    public function getUsersByRole(string $role): JsonResponse
+    {
+        $role = Str::endsWith($role, 's')
+            ? Str::substr($role, 0, -1)
+            : $role;
+
+        $users = User::whereHas('roles', function ($query) use ($role) {
+            $query->whereSlug($role);
+        })->with('profile', 'roles');
+
+        return $this->successResponse(
+            UserResource::collection($users->paginate())
         );
     }
 
@@ -42,7 +58,7 @@ class UserController extends Controller
             DB::beginTransaction();
                 $user = $this->userService->createUser($data);
                 $this->userService->createProfile($user);
-                RoleService::attachRolesToUser($user, $data['role_id']);
+                $this->userService->attachRolesToUser($user, $data['role_id']);
             DB::commit();
             return $this->handleResponse($user);
         } catch (\Exception $e) {
@@ -74,7 +90,7 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
                 $user = $this->userService->updateProfile($user, $request->except('role_id'));
-                RoleService::attachRolesToUser($user, $request->input('role_id'));
+                $this->userService->attachRolesToUser($user, $request->input('role_id'));
             DB::commit();
             return $this->handleResponse($user);
         } catch (\Exception $e) {

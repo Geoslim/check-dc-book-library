@@ -29,7 +29,7 @@ class AuthController extends Controller
             DB::beginTransaction();
                 $user = $this->authService->createUser($request->validated());
                 $this->authService->createProfile($user);
-                RoleService::attachRolesToUser($user, $roleId);
+                $this->authService->attachRolesToUser($user, $roleId);
                 $response['token'] = $this->authService->createToken($user);
             DB::commit();
             $response['user'] = UserResource::make($user->load('profile', 'roles'));

@@ -27,9 +27,9 @@ class CreateBookRequest extends FormRequest
     {
         return [
             'title' => 'required|unique:books,title',
-            'edition' => 'required',
-            'description' => 'required',
-            'prologue' => 'required',
+            'edition' => 'required|numeric',
+            'description' => 'required|string',
+            'prologue' => 'required|string',
             'author_id' => [
                 'required',
                 'array',

@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\BorrowController;
-use App\Http\Controllers\API\Admin\{BookController, LendingController, PlanController, UserController};
+use App\Http\Controllers\API\Admin\{AccessLevelController,
+    BookController,
+    LendingController,
+    PlanController,
+    UserController};
 use App\Http\Controllers\API\Auth\{AuthController, ProfileController};
 use App\Http\Controllers\API\SubscriptionController;
 use Illuminate\Http\Request;
@@ -75,6 +79,7 @@ Route::prefix('admin')->middleware([
             Route::post('update', 'updateUser');
             Route::delete('delete', 'deleteUser');
         });
+        Route::get('role/{role}', 'getUsersByRole'); // ['role' => ['admins', 'authors', 'readers']]
     });
 
     Route::controller(BookController::class)->prefix('books')->group(function () {
@@ -98,21 +103,21 @@ Route::prefix('admin')->middleware([
             Route::delete('delete', 'deleteLending');
         });
     });
+
+    Route::controller(AccessLevelController::class)->prefix('access-levels')->group(function () {
+        Route::get('', 'getAccessLevels');
+        Route::post('', 'createAccessLevel');
+        Route::prefix('{accessLevel}')->group(function () {
+            Route::get('', 'getAccessLevel');
+            Route::post('update', 'updateAccessLevel');
+            Route::delete('delete', 'deleteAccessLevel');
+        });
+    });
 });
 
 
 /**
  * Note to self
  * --------------------------------
- * Profile needs to be updated with at least the age in order to borrow a book
- * Age is used in getting a user's access level
- *
- * A user must be subscribed before they can also borrow a book
- * Probably add a middleware to make sure you cannot attempt borrowing if you're not subscribed
-
- * Ensure you go over the migration files again... probably for soft delete or
- * cascading or even indexing
- *
- * Should probably provide an endpoint that fetches all authors for admins
  * One that fetches all books as well for users
  */

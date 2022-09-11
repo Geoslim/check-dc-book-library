@@ -88,12 +88,7 @@ class BookController extends Controller
             $data = $request->validated();
             DB::beginTransaction();
                 $book = $this->bookService->updateBook($book, $data);
-//                $this->attachBookDependencies($book, $data);
-            $this->bookService->attachAuthorsToBook($book, $data['author_id']);
-            $this->bookService->attachPlansToBook($book, $data['plan_id']);
-            $this->bookService->attachAccessLevelsToBook($book, $data['access_level_id']);
-            $this->bookService->attachCategoriesToBook($book, $data['category_id']);
-            $this->bookService->attachTagsToBook($book, $data['tag_id']);
+                $this->attachBookDependencies($book, $data);
             DB::commit();
             return $this->handleResponse($book);
         } catch (\Exception $e) {

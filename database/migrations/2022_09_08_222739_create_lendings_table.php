@@ -26,6 +26,8 @@ return new class extends Migration
             $table->integer('points')->default(0);
             $table->string('status')->default(Lending::STATUS['not_due']);
             $table->timestamps();
+
+            $table->index(['date_time_due', 'status']);
         });
     }
 

@@ -25,9 +25,9 @@ class CreatePlanRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:plans,name',
-            'duration' => 'required',
+            'duration' => 'required|numeric',
             'price' => 'required',
-            'borrow_period' => 'required'
+            'borrow_period' => 'required|numeric'
         ];
     }
 }

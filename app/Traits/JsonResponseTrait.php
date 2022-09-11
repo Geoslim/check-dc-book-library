@@ -44,15 +44,11 @@ trait JsonResponseTrait
         ], $statusCode);
     }
 
-    public function fatalErrorResponse(Exception $e, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR): JsonResponse
+    public function fatalErrorResponse(Exception $e, $statusCode = Response::HTTP_EXPECTATION_FAILED): JsonResponse
     {
-        \Log::error($e);
-        $error = ["message" => $e->getMessage()];
-
         return response()->json([
             "success" => false,
-            "message" => "Oops! Something went wrong on the server",
-            "error" => $error
+            "message" => $e->getMessage(),
         ], $statusCode);
     }
 }

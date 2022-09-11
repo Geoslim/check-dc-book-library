@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Lending\CreateLendingRequest;
+use App\Http\Requests\Lending\UpdateLendingRequest;
 use App\Http\Resources\LendingResource;
 use App\Models\{Book, Lending, User};
 use App\Services\Lending\LendingService;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class LendingController extends Controller
 {
@@ -51,9 +53,14 @@ class LendingController extends Controller
         }
     }
 
+    /**
+     * @param Request $request
+     * @param Lending $lending
+     * @return JsonResponse
+     * @throws Throwable
+     */
     public function markLendingAsReturned(Request $request, Lending $lending): JsonResponse
     {
-        // need to make sure we cannot mark a lending more than once
         try {
             DB::beginTransaction();
             $lending = $this->lendingService
@@ -66,8 +73,14 @@ class LendingController extends Controller
         }
     }
 
-    public function updateLending(Request $request, Lending $lending): JsonResponse
+    public function updateLending(UpdateLendingRequest $request, Lending $lending): JsonResponse
     {
+        // work on this
+        $data = $request->validated();
+        $user = User::whereId($data['user_id'])->first();
+        $book = Book::whereId($data['book_id'])
+            ->with(['accessLevels', 'plans'])->first();
+        $this->lendingService->updateLendingRecord($lending, $data);
         return $this->success('Lending Record updated successfully');
     }
 

@@ -26,7 +26,11 @@ class UpdateBookStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['required', Rule::in(array_keys(Book::STATUS))]
+            'status' => [
+                'required',
+                'string',
+                Rule::in(array_keys(Book::STATUS))
+            ]
         ];
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('edition');
+            $table->integer('edition');
             $table->tinyText('description');
             $table->mediumText('prologue');
             $table->string('status')->default(Book::STATUS['available'])->index();

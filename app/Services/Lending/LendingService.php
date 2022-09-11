@@ -44,6 +44,11 @@ class LendingService
         ]);
     }
 
+    public function updateLendingRecord($lending, $data)
+    {
+
+    }
+
     /**
      * @throws Exception
      */
