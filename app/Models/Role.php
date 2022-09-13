@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\{Builder, Collection, Factories\HasFactory, Model, Relations\BelongsToMany};
+use Eloquent;
 use Illuminate\Support\Carbon;
 
 /**
@@ -23,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Role whereName($value)
  * @method static Builder|Role whereSlug($value)
  * @method static Builder|Role whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @mixin Eloquent
  */
 class Role extends Model
 {

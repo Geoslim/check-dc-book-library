@@ -17,8 +17,8 @@ return new class extends Migration
     {
         Schema::create('access_level_book', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(AccessLevel::class);
-            $table->foreignIdFor(Book::class);
+            $table->foreignIdFor(AccessLevel::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Book::class)->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

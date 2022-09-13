@@ -8,7 +8,6 @@ use App\Http\Requests\Admin\{User\CreateUserRequest, User\UpdateUserRequest, Use
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Auth\AuthService;
-use App\Services\Auth\RoleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Throwable;

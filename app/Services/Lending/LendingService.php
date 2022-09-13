@@ -21,11 +21,8 @@ class LendingService
      */
     public function borrowBook($user, $book): Model|Lending
     {
-        $user->abortIfUserHasNoSubscription();
-        $user->abortIfUserHasInvalidAccessLevelAndPlan($book);
-        $this->abortIfBookIsUnavailable($book);
-
-        $lending =  $this->createLendingRecord(
+        $this->makeLendingDependencyChecks($book, $user);
+        $lending = $this->createLendingRecord(
             $user->id,
             $book->id,
             $user->activeSubscription()->plan->borrow_period
@@ -44,9 +41,35 @@ class LendingService
         ]);
     }
 
-    public function updateLendingRecord($lending, $data)
+    /**
+     * @throws Exception
+     */
+    public function updateLendingRecord($lending, $book, $user)
     {
+        $this->makeLendingDependencyChecks($book, $user);
 
+        if ($lending->book->id !== $book->id) {
+            $this->bookService->updateBookStatus(
+                $lending->book,
+                Book::STATUS['available']
+            );
+            $this->bookService->updateBookStatus(
+                $book,
+                Book::STATUS['borrowed']
+            );
+        }
+
+        $lending->update([
+            'book_id' => $book->id,
+            'user_id' => $user->id,
+            'date_time_borrowed' => now(),
+            'date_time_due' =>
+                now()->addDays(
+                    $user->activeSubscription()->plan->borrow_period
+                ),
+        ]);
+
+        return $lending->refresh();
     }
 
     /**
@@ -96,5 +119,15 @@ class LendingService
                 'This lending record has already been marked as returned.'
             );
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function makeLendingDependencyChecks($book, $user): void
+    {
+        $user->abortIfUserHasNoSubscription();
+        $user->abortIfUserHasInvalidAccessLevelAndPlan($book);
+        $this->abortIfBookIsUnavailable($book);
     }
 }
