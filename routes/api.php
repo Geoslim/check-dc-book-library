@@ -8,7 +8,6 @@ use App\Http\Controllers\API\Admin\{AccessLevelController,
     UserController};
 use App\Http\Controllers\API\Auth\{AuthController, ProfileController};
 use App\Http\Controllers\API\SubscriptionController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,6 +19,15 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
+|________________________________________________________________
+|
+|
+| Decided to go with controller -> service classes when carrying out
+| operations for creating and updating a resource.
+| Decided to have one method handling a single action as minimal as possible.
+| Sou you'll find out that a controller calls all the actions
+| one at a time required to complete the operation.
+| It could have also been okay to have those other actions being called within an action
 */
 
 Route::get('/', function () {
@@ -114,10 +122,3 @@ Route::prefix('admin')->middleware([
         });
     });
 });
-
-
-/**
- * Note to self
- * --------------------------------
- * One that fetches all books as well for users
- */

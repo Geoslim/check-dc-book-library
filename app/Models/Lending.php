@@ -2,11 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\{Builder,
-    Factories\HasFactory,
-    Model,
-    Relations\BelongsTo
-};
+use Illuminate\Database\Eloquent\{Builder, Factories\HasFactory, Model, Relations\BelongsTo, SoftDeletes};
 use Eloquent;
 use Illuminate\Support\Carbon;
 

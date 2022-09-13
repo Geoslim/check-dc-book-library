@@ -17,3 +17,6 @@ To start the book library app, perform the following step in the order
 - Run 'php artisan key:generate'
 - Run 'php artisan migrate --seed'
 - Run './vendor/bin/sail up' to startup the application
+
+- An admin is seeded with 
+- ['email' => 'admin@example.com', 'password' => 'password']

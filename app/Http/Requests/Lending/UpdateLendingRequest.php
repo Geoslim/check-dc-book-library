@@ -25,9 +25,6 @@ class UpdateLendingRequest extends FormRequest
      */
     public function rules(Request $request): array
     {
-        return array_merge((new CreateLendingRequest())->rules(), [
-            'date_time_borrowed' => 'nullable',
-            'date_time_due' => 'nullable'
-        ]);
+        return array_merge((new CreateLendingRequest())->rules(), []);
     }
 }

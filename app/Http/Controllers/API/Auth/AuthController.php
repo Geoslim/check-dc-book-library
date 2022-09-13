@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\{LoginRequest, RegisterRequest};
 use App\Http\Resources\UserResource;
 use App\Models\Role;
-use App\Services\Auth\{AuthService, RoleService};
+use App\Services\Auth\AuthService;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, DB};
 use Throwable;

@@ -73,15 +73,30 @@ class LendingController extends Controller
         }
     }
 
+    /**
+     * @param UpdateLendingRequest $request
+     * @param Lending $lending
+     * @return JsonResponse
+     * @throws Throwable
+     */
     public function updateLending(UpdateLendingRequest $request, Lending $lending): JsonResponse
     {
-        // work on this
-        $data = $request->validated();
-        $user = User::whereId($data['user_id'])->first();
-        $book = Book::whereId($data['book_id'])
-            ->with(['accessLevels', 'plans'])->first();
-        $this->lendingService->updateLendingRecord($lending, $data);
-        return $this->success('Lending Record updated successfully');
+        try {
+            $data = $request->validated();
+            DB::beginTransaction();
+                $user = User::whereId($data['user_id'])->first();
+                $book = Book::whereId($data['book_id'])
+                    ->with('plans')->first();
+                $this->lendingService->updateLendingRecord($lending, $book, $user);
+            DB::commit();
+            return $this->successResponse(
+                LendingResource::make($lending),
+                'Lending Record updated successfully'
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->fatalErrorResponse($e);
+        }
     }
 
     public function deleteLending(Request $request, Lending $lending): JsonResponse
